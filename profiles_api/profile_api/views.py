@@ -2,8 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
+from rest_framework import filters
 
 from profile_api import serializers
+from profile_api import models
+from profile_api import permissions
 
 class HelloAPIView(APIView):
     """Test api view"""
@@ -53,13 +57,25 @@ class HelloViewSet(viewsets.ViewSet):
             return Response({"message": message})
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        
     def update(self,request,pk=None):
         return Response({"Type": "Update"})
+    
     def partial_update(self,request,pk=None):
         return Response({"Type": "PARTIAL_Update"})
     
     def retrieve(self,request,pk=None):
         return Response({"Type": "RETRIEVE"})
+    
     def destroy(self,request,pk=None):
         return Response({"Type": "DESTROY"})
     
+    
+class UserProfileViewSet(viewsets.ModelViewSet):
+    """Model view set"""
+    serializer_class = serializers.UserProfileSerializers
+    queryset = models.UserProfile.object.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (permissions.UpdateOwnProfile,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("name", "email")
