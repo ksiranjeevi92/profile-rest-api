@@ -16,16 +16,21 @@ class UserProfileManager(BaseUserManager):
         
         user.set_password(password)
         user.save(using=self._db)
-    def create_super_user(self,email,name,password):
+        
+        return user
+        
+    def create_superuser(self,email,name,password):
         """Create suprt user"""
         user = self.create_user(email,name,password)
-        
+        print(user)
         user.is_superuser = True
         user.is_staff = True
         
+        user.save(using=self._db)
+        
         return user
 
-class UserProfile(AbstractBaseUser,PermissionError):
+class UserProfile(AbstractBaseUser,PermissionsMixin):
     """Database model for user in the system"""
     email = models.EmailField(max_length=255,unique=True)
     name = models.CharField(max_length=255)
